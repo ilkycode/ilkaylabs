@@ -81,3 +81,40 @@ SELECT DISTINCT duration, date FROM loan
 WHERE date LIKE "9712%"
 ORDER BY duration,date;
 
+#In the trans table, for account_id 396, sum the amount of transactions for each type (VYDAJ = Outgoing, PRIJEM = Incoming). Your output should have the account_id, the type and the sum of amount, named as total_amount. Sort alphabetically by type.
+
+SELECT account_id, type, SUM(amount) as total_amount FROM trans 
+WHERE account_id = 396
+GROUP BY type
+Order by type;
+
+#From the previous output, translate the values for type to English, rename the column to transaction_type, round total_amount down to an integer
+
+ALTER TABLE trans 
+RENAME COLUMN type TO transaction_type;
+
+UPDATE trans
+SET transaction_type = REPLACE(transaction_type,'VYDAJ','OUTGOING');
+UPDATE trans
+SET transaction_type = REPLACE(transaction_type,'PRIJEM','INCOMING');
+
+SELECT account_id, transaction_type FROM trans;
+
+#From the previous result, modify your query so that it returns only one row, with a column for incoming amount, outgoing amount and the difference.
+
+ALTER TABLE trans ADD incoming int(15);
+
+UPDATE  trans
+SET     incoming = amount
+WHERE transaction_type = 'INCOMING';
+
+ALTER TABLE trans ADD outgoing int(15);
+
+UPDATE  trans
+SET     outgoing = amount
+WHERE transaction_type = 'OUTGOING';
+
+SELECT * FROM trans;
+
+SELECT account_id, SUM(incoming) as inco, SUM(outgoing) as outgo FROM trans
+WHERE account_id = 396;
